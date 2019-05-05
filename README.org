@@ -1,7 +1,7 @@
 * discogs-rust
 A rust library based around the discogs API, still in early development
 
-* TODO before 1.0.0
+* stuff to do before 1.0.0
 - [ ] Rate limiting
 - [-] Data types
   - [-] Artist
