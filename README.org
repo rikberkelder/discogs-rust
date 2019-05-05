@@ -1,0 +1,18 @@
+* discogs-rust
+A rust library based around the discogs API, still in early development
+
+* TODO before 1.0.0
+- [ ] Rate limiting
+- [-] Data types
+  - [-] Artist
+	- [X] Artist
+	- [ ] Artist releases
+  - [-] Master release
+	- [X] Master release
+	- [ ] Master release versions
+  - [ ] Release
+  - [ ] Label
+	- [ ] Label
+	- [ ] All label releases
+- [ ] Search
+- [ ] Tests
