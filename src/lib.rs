@@ -1,18 +1,38 @@
-use reqwest::{Client, Error, Response, Url};
-use serde::{Deserialize, Serialize};
+use reqwest::{Client, Error, Response};
+use reqwest::header::{USER_AGENT};
+use serde::{Deserialize};
 use serde_json;
 
-#[macro_use]
-extern crate lazy_static;
-lazy_static! {
-	static ref CLIENT: Client = Client::new();
+pub const API_URL: &str = "https://api.discogs.com";
+
+fn query_api(url: &String, user_agent: &String, client: &mut Client) -> Result<Response, Error> {
+	let result: Result<Response, Error> = client.get(url).header(USER_AGENT, user_agent.as_str()).send();
+	return result;
 }
 
-static API_URL: &str = "https://api.discogs.com";
+pub struct Discogs {
+    api_endpoint: String,
+    user_agent: String,
+    http_client: Client
+}
 
-fn query_api(url: &String) -> Result<Response, Error> {
-	let result: Result<Response, Error> = CLIENT.get(url).send();
-	return result;
+impl Discogs {
+    pub fn new(user_agent: &str) -> Self {
+        Discogs {
+            api_endpoint: API_URL.to_owned(),
+            user_agent: user_agent.to_owned(),
+            http_client: Client::new(),
+        }
+    }
+
+
+    pub fn master(&mut self, id: u64) -> Option<Master> {
+        return Master::new(id,
+                           self.api_endpoint.clone(),
+                           self.user_agent.clone(),
+                           &mut self.http_client) 
+    }
+
 }
 
 #[derive(Deserialize, Debug, Clone)]
@@ -37,9 +57,9 @@ pub struct Artist {
 }
 
 impl Artist {
-	pub fn new(id: i64) -> Option<Artist> {
-		let request_url: String = format!("{}/artists/{}", API_URL, id);
-		let result = query_api(&request_url);
+	pub fn new(id: u64, api_endpoint: String, user_agent: String, http_client: &mut Client) -> Option<Artist> {
+		let request_url: String = format!("{}/artists/{}", api_endpoint, id);
+		let result = query_api(&request_url, &user_agent, http_client);
 		let artist: Artist = result.ok()?.json().ok()?;
 
 		return Some(artist);
@@ -53,9 +73,6 @@ pub struct Track {
 	title: String,
 	extra_artists: Option<Vec<Artist>>,
 }
-
-#[derive(Deserialize, Debug)]
-struct MasterArtist {}
 
 #[derive(Deserialize, Debug)]
 pub struct Master {
@@ -77,21 +94,22 @@ pub struct Master {
 }
 
 impl Master {
-	pub fn new(id: &i64) -> Option<Master> {
-		let request_url: String = format!("{}/masters/{}", API_URL, id);
-		let result: Result<Response, Error> = query_api(&request_url);
+	pub fn new(id: u64, api_endpoint: String, user_agent: String, http_client: &mut Client) -> Option<Master> {
+		let request_url: String = format!("{}/masters/{}", api_endpoint, id);
+		let result: Result<Response, Error> = query_api(&request_url, &user_agent, http_client);
 		let json: serde_json::Value = serde_json::from_str(&result.ok()?.text().ok()?).ok()?;
 		let artists: &serde_json::Value = &json["artists"];
-		let mut new_artists: Vec<Option<Artist>> = Vec::new();
+	    let mut new_artists: Vec<Option<Artist>> = Vec::new();
 
 		for artist in &artists.as_array() {
-			let id: i64 = artist[0]["id"].as_i64()?;
-			new_artists.push(Artist::new(id));
+			let id: u64 = artist[0]["id"].as_u64()?;
+			new_artists.push(Artist::new(id, api_endpoint.clone(), user_agent.clone(), http_client));
 		}
 
 		let mut master: Master = serde_json::from_value(json).ok()?;
 
 		master.artists.append(&mut new_artists);
+
 
 		return Some(master);
 	}
