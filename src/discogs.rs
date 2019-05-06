@@ -1,3 +1,4 @@
+use reqwest::Client;
 use super::data_structures::*;
 use super::*;
 

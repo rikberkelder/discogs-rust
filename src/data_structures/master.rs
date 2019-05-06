@@ -1,5 +1,5 @@
-use crate::*;
 use crate::data_structures::*;
+use crate::util::*;
 use serde_json;
 use serde::{Deserialize};
 use reqwest::{Client, Error, Response};

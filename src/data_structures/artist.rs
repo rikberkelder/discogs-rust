@@ -1,5 +1,6 @@
-use crate::*;
-use serde::{Deserialize};
+use crate::util::*;
+use serde::Deserialize;
+use reqwest::Client;
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct Member {
