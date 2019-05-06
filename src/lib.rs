@@ -33,6 +33,13 @@ impl Discogs {
                            &mut self.http_client) 
     }
 
+    pub fn artist(&mut self, id: u64) -> Option<Artist> {
+        return Artist::new(id,
+                           self.api_endpoint.clone(),
+                           self.user_agent.clone(),
+                           &mut self.http_client)
+    }
+
 }
 
 #[derive(Deserialize, Debug, Clone)]
