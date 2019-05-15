@@ -32,4 +32,3 @@ impl Artist {
 		return Some(artist);
 	}
 }
-
