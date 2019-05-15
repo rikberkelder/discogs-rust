@@ -8,6 +8,7 @@ use reqwest::{Client, Error, Response};
 pub struct Master {
 	styles: Vec<String>,
 	genres: Vec<String>,
+    videos: Vec<Video>,
 	title: String,
 	main_release: u64,
 	main_release_url: String,
@@ -16,7 +17,7 @@ pub struct Master {
 	artists: Vec<Option<Artist>>,
 	versions_url: String,
 	resource_url: String,
-	tracklist: Option<Vec<Track>>,
+	tracklist: Vec<Track>,
 	id: i64,
 	num_for_sale: u16,
 	lowest_price: f32,
@@ -46,9 +47,29 @@ impl Master {
 }
 
 #[derive(Deserialize, Debug)]
-pub struct Track {
+struct Track {
 	duration: String,
 	position: String,
 	title: String,
 	extra_artists: Option<Vec<Artist>>,
+}
+
+#[derive(Deserialize, Debug)]
+struct Video {
+    duration: u64,
+    description: String,
+    embed: bool,
+    uri: String,
+    title: String,
+}
+
+#[derive(Deserialize, Debug)]
+struct Image {
+    height: u64,
+    width: u64,
+    resource_url: String,
+    #[serde(rename = "type")]
+    image_type: String,
+    uri: String,
+    uri150: String,
 }
