@@ -16,6 +16,13 @@ impl Discogs {
             http_client: Client::new(),
         }
     }
+
+    pub fn search(&mut self, query: String) -> Option<Search> {
+        return Search::new(query,
+                           self.api_endpoint.clone(),
+                           self.user_agent.clone(),
+        &mut self.http_client)
+    }
     
     pub fn master(&mut self, id: u64) -> Option<Master> {
         return Master::new(id,
