@@ -1,4 +1,4 @@
-use crate::util::*;
+use crate::discogs::Discogs;
 use serde_json;
 use serde::{Deserialize};
 use reqwest::{Client, Error, Response};
@@ -10,28 +10,32 @@ pub struct Search {
 }
 
 impl Search {
-    pub fn new( query: String, api_endpoint: String, user_agent: String, http_client: &mut Client) -> Option<Search> {
-        let request_url: String = format!("{}/database/search?q={}", api_endpoint, query);
+    pub fn new( query: String, discogs: &mut Discogs) -> Option<Search> {
+        let request_url: String = format!("{}/database/search?q={}", &discogs.api_endpoint, query);
         println!("{:#?}", &request_url);
-        let result = query_api(&request_url, &user_agent, http_client);
-        let search: Search = result.ok()?.json().ok()?;
+        let result = discogs.query_api(&request_url);
+        let search: std::result::Result<Search, Error> = result.ok()?.json();
 
-        return Some(search);
+        println!("{:#?}", search);
+        return None;
     }
 }
 
+
 #[derive(Deserialize, Debug)]
 struct Result {
-    style: Vec<String>,
+    #[serde(rename = "type")]
+    result_type: String,
+    style: Option<Vec<String>>,
     thumb: Option<String>,
     title: Option<String>,
     country: Option<String>,
-    format: Vec<String>,
+    format: Option<Vec<String>>,
     uri: Option<String>,
     catno: Option<String>,
-    label: Vec<String>,
+    label: Option<Vec<String>>,
     year: Option<String>,
-    genre: Vec<String>,
+    genre: Option<Vec<String>>,
     resource_url: Option<String>,
     id: u64,
 }

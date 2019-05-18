@@ -1,6 +1,5 @@
 mod data_structures;
 mod discogs;
-mod util;
 pub use discogs::*;
 pub use data_structures::*;
 

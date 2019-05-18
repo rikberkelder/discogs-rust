@@ -1,6 +1,5 @@
-use crate::util::*;
+use crate::discogs::Discogs;
 use serde::Deserialize;
-use reqwest::Client;
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct Member {
@@ -24,9 +23,9 @@ pub struct Artist {
 }
 
 impl Artist {
-	pub fn new(id: u64, api_endpoint: String, user_agent: String, http_client: &mut Client) -> Option<Artist> {
-		let request_url: String = format!("{}/artists/{}", api_endpoint, id);
-		let result = query_api(&request_url, &user_agent, http_client);
+	pub fn new(id: u64, discogs: &mut Discogs) -> Option<Artist> {
+		let request_url: String = format!("{}/artists/{}", &discogs.api_endpoint, id);
+		let result = discogs.query_api(&request_url);
 		let artist: Artist = result.ok()?.json().ok()?;
 
 		return Some(artist);
