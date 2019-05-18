@@ -2,7 +2,7 @@
 A rust library based around the discogs API, still in early development
 
 * stuff to do before 1.0.0
-- [ ] Rate limiting
+- [X] Rate limiting
 - [-] Data types
   - [-] Artist
 	- [X] Artist

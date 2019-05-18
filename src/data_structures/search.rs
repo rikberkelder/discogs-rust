@@ -16,7 +16,6 @@ impl Search {
         let result = discogs.query_api(&request_url);
         let search: std::result::Result<Search, Error> = result.ok()?.json();
 
-        println!("{:#?}", search);
         return None;
     }
 }
