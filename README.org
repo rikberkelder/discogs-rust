@@ -18,3 +18,4 @@ A rust library based around the discogs API, still in early development
 - [X] Auth
 - [X] Pass errors to user
 - [ ] Tests
+- [ ] Docs

@@ -18,6 +18,11 @@ impl Search {
             Err(e) => return Err(QueryError::RequestError(e)),
         };
 
+        let status = &response.status();
+
+        if status.is_client_error() { return Err(QueryError::ClientError(status.as_u16()))}
+        if status.is_server_error() { return Err(QueryError::ServerError(status.as_u16()))}
+
         match response.json() {
             Ok(search) => return Ok(search),
             Err(e) => return Err(QueryError::JsonParseError(e)),

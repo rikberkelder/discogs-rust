@@ -5,4 +5,3 @@ pub use data_structures::*;
 
 pub const API_URL: &str = "https://api.discogs.com";
 
-
