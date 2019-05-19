@@ -74,3 +74,53 @@ impl Discogs {
     }
 }
 
+
+
+#[cfg(test)]
+mod tests {
+    use crate::discogs::*;
+
+    fn get_discogs() -> Discogs {
+        return Discogs::new("discogs-rust-unit-test/1");
+    }
+
+    #[test]
+    fn test_discogs_query_api() {
+        let mut discogs = get_discogs();
+
+        match discogs.query_api(&String::from("https://api.discogs.com/releases/249504")) {
+            Ok(r) => assert!(true),
+            Err(e) => assert!(false, "Error making request"),
+        }
+    }
+
+    #[test]
+    fn test_discogs_query_api_invalid_url() {
+        let mut discogs = get_discogs();
+
+        match discogs.query_api(&String::from("hello!")) {
+            Ok(r) => assert!(false),
+            Err(e) => assert!(true, "Error making request"),
+        }
+    }
+
+    #[test]
+    fn test_get_master() {
+        let mut discogs = get_discogs();
+
+        match discogs.master(666) {
+            Ok(r) => assert!(true),
+            Err(e) => assert!(false),
+        }
+    }
+
+    #[test]
+    fn test_get_nonexistent_master(){
+        let mut discogs = get_discogs();
+        
+        match discogs.master(1) {
+            Ok(r) => assert!(false),
+            Err(e) => assert!(true),
+        }
+    }
+}
