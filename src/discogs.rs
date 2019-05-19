@@ -121,7 +121,48 @@ mod tests {
         
         match discogs.master(1) {
             Ok(r) => assert!(false),
-            Err(e) => assert!(true),
+            Err(e) => match e {
+                QueryError::ClientError(e) => assert!(true),
+                _ => assert!(false),
+            },
         }
     }
+
+    #[test]
+    fn test_get_artist() {
+        let mut discogs = get_discogs();
+
+        match discogs.artist(666) {
+            Ok(r) => assert!(true),
+            Err(e) => assert!(false),
+        }
+    }
+
+    #[test]
+    fn test_get_nonexistent_artist(){
+        let mut discogs = get_discogs();
+        
+        match discogs.artist(99999999999) {
+            Ok(r) => assert!(false),
+            Err(e) => match e {
+                QueryError::ClientError(e) => assert!(true),
+                _ => assert!(false),
+            },
+        }
+    }
+
+    #[test]
+    fn test_get_search_no_auth(){
+        let mut discogs = get_discogs();
+        
+        match discogs.search(String::from("Metallica")) {
+            Ok(r) => assert!(false),
+            Err(e) => match e {
+                QueryError::ClientError(e) => assert!(true),
+                _ => assert!(false),
+            },
+        }
+    }
+
+    
 }
