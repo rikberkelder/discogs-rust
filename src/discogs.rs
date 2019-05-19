@@ -11,7 +11,8 @@ pub enum QueryError {
     JsonParseError (reqwest::Error),
     SerdeParseError (serde_json::Error),
     RequestError (reqwest::Error),
-    
+    ClientError (u16),
+    ServerError (u16),
 }
 
 
