@@ -1,8 +1,7 @@
 use crate::data_structures::*;
-use crate::discogs::Discogs;
-use serde_json;
+use crate::discogs::{Discogs, QueryError};
 use serde::{Deserialize};
-use reqwest::{Error, Response};
+use reqwest::{Response};
 
 #[derive(Deserialize, Debug)]
 pub struct Master {
@@ -14,7 +13,7 @@ pub struct Master {
 	main_release_url: String,
 	uri: String,
 	#[serde(skip)]
-	artists: Vec<Option<Artist>>,
+	artists: Vec<Artist>,
 	versions_url: String,
 	resource_url: String,
 	tracklist: Vec<Track>,
@@ -25,25 +24,18 @@ pub struct Master {
 }
 
 impl Master {
-	pub fn new(id: u64, discogs: &mut Discogs) -> Option<Master> {
+	pub fn new(id: u64, discogs: &mut Discogs) -> Result<Master, QueryError> {
 		let request_url: String = format!("{}/masters/{}", &discogs.api_endpoint, id);
-		let result: Result<Response, Error> = discogs.query_api(&request_url);
-		let json: serde_json::Value = serde_json::from_str(&result.ok()?.text().ok()?).ok()?;
-		let artists: &serde_json::Value = &json["artists"];
-	    let mut new_artists: Vec<Option<Artist>> = Vec::new();
+        let mut response: Response = match discogs.query_api(&request_url) {
+            Ok(response) => response,
+            Err(e) => return Err(QueryError::RequestError(e)),
+        };
 
-		for artist in &artists.as_array() {
-			let id: u64 = artist[0]["id"].as_u64()?;
-            new_artists.push(discogs.artist(id));
-		}
-
-		let mut master: Master = serde_json::from_value(json).ok()?;
-
-		master.artists.append(&mut new_artists);
-
-
-		return Some(master);
-	}
+        match response.json() {
+            Ok(master) => return Ok(master),
+            Err(e) => return Err(QueryError::JsonParseError(e)),
+        }
+    }
 }
 
 #[derive(Deserialize, Debug)]
@@ -72,4 +64,11 @@ struct Image {
     image_type: String,
     uri: String,
     uri150: String,
+}
+
+#[derive(Deserialize, Debug)]
+struct MasterArtist {
+    id: u64,
+    resource_url: Option<String>,
+    name: String,
 }

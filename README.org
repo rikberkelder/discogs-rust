@@ -15,5 +15,6 @@ A rust library based around the discogs API, still in early development
 	- [ ] Label
 	- [ ] All label releases
 - [X] Search
-- [X] Auth 
+- [X] Auth
+- [X] Pass errors to user
 - [ ] Tests

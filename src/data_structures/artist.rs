@@ -1,4 +1,4 @@
-use crate::discogs::Discogs;
+use crate::discogs::{Discogs, QueryError};
 use serde::Deserialize;
 
 #[derive(Deserialize, Debug, Clone)]
@@ -23,11 +23,17 @@ pub struct Artist {
 }
 
 impl Artist {
-	pub fn new(id: u64, discogs: &mut Discogs) -> Option<Artist> {
+	pub fn new(id: u64, discogs: &mut Discogs) -> Result<Artist, QueryError> {
 		let request_url: String = format!("{}/artists/{}", &discogs.api_endpoint, id);
-		let result = discogs.query_api(&request_url);
-		let artist: Artist = result.ok()?.json().ok()?;
+		let mut result = match discogs.query_api(&request_url) {
+            Ok(result) => result,
+            Err(e) => return Err(QueryError::RequestError(e)),
+        };
 
-		return Some(artist);
+        match result.json() {
+            Ok(artist) => return Ok(artist),
+            Err(e) => return Err(QueryError::JsonParseError(e)),
+        };
+
 	}
 }

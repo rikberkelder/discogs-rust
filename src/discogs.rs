@@ -5,6 +5,16 @@ use reqwest::header::{USER_AGENT, AUTHORIZATION};
 use super::data_structures::*;
 use super::*;
 
+#[derive(Debug)]
+pub enum QueryError {
+    AuthenticationMissingError,
+    JsonParseError (reqwest::Error),
+    SerdeParseError (serde_json::Error),
+    RequestError (reqwest::Error),
+    
+}
+
+
 pub struct Discogs {
     pub api_endpoint: String,
     pub user_agent: String,
@@ -51,15 +61,15 @@ impl Discogs {
         }
     }
 
-    pub fn search(&mut self, query: String) -> Option<Search> {
+    pub fn search(&mut self, query: String) -> Result<Search, QueryError>{
         return Search::new(query, self);
     }
     
-    pub fn master(&mut self, id: u64) -> Option<Master> {
+    pub fn master(&mut self, id: u64) -> Result<Master, QueryError> {
         return Master::new(id, self);
     }
 
-    pub fn artist(&mut self, id: u64) -> Option<Artist> {
+    pub fn artist(&mut self, id: u64) -> Result<Artist, QueryError> {
         return Artist::new(id, self);   
     }
 }

@@ -1,4 +1,4 @@
-use crate::discogs::Discogs;
+use crate::discogs::{Discogs, QueryError};
 use serde_json;
 use serde::{Deserialize};
 use reqwest::{Client, Error, Response};
@@ -6,23 +6,28 @@ use reqwest::{Client, Error, Response};
 #[derive(Deserialize, Debug)]
 pub struct Search {
     pagination: Pagination,
-    results: Vec<Result>,
+    results: Vec<SearchResult>,
 }
 
 impl Search {
-    pub fn new( query: String, discogs: &mut Discogs) -> Option<Search> {
+    pub fn new( query: String, discogs: &mut Discogs) -> Result<Search, QueryError> {
         let request_url: String = format!("{}/database/search?q={}", &discogs.api_endpoint, query);
         println!("{:#?}", &request_url);
-        let result = discogs.query_api(&request_url);
-        let search: std::result::Result<Search, Error> = result.ok()?.json();
+        let mut response: Response = match discogs.query_api(&request_url) {
+            Ok(response) => response,
+            Err(e) => return Err(QueryError::RequestError(e)),
+        };
 
-        return None;
+        match response.json() {
+            Ok(search) => return Ok(search),
+            Err(e) => return Err(QueryError::JsonParseError(e)),
+        };
     }
 }
 
 
 #[derive(Deserialize, Debug)]
-struct Result {
+struct SearchResult {
     #[serde(rename = "type")]
     result_type: String,
     style: Option<Vec<String>>,
